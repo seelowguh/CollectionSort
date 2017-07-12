@@ -53,8 +53,44 @@ namespace CLCode.BaseClasses
 
     }
 
-    public class CFileExtentions
+    public static class CFileExtentions
     {
+        public static void MoveFile(this string _source, string _destinationFolder)
+        {
+            if (!Directory.Exists(_destinationFolder))
+                Directory.CreateDirectory(_destinationFolder);
+
+            string _destFile = string.Format("{0}{1}{2}", _destinationFolder, _destinationFolder.Substring(_destinationFolder.Length - 1) == "\\" ? "" : "\\", new FileInfo(_source).Name);
+
+            if (File.Exists(_source))
+                if(!File.Exists(_destFile))
+                    File.Move(_source, _destFile);
+        }
+
+        public static void MoveFolder(this string _source, string _destinationFolder)
+        {
+            if (!Directory.Exists(_destinationFolder))
+                Directory.CreateDirectory(_destinationFolder);
+
+            string _destFolder = string.Format("{0}{1}{2}", _destinationFolder, _destinationFolder.Substring(_destinationFolder.Length - 1) == "\\" ? "" : "\\", new DirectoryInfo(_source).Name);
+
+            if (Directory.Exists(_source))
+                if(!Directory.Exists(_destFolder))
+                    Directory.Move(_source, _destFolder);
+        }
+
+        public static void DeleteFolder(this string _source)
+        {
+            if(Directory.Exists(_source))
+                Directory.Delete(_source);
+        }
+
+        public static void DeleteFile(this string _source)
+        {
+            if (File.Exists(_source))
+                File.Delete(_source);
+        }
+
 
     }
 }

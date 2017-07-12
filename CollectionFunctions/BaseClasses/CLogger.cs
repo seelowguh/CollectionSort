@@ -8,9 +8,16 @@ namespace CLCode.BaseClasses
 {
     public class CLogger
     {
+        public event EventHandler<string> LogOutput;
+
         public virtual void Log(string Message)
         {
-            throw new NotImplementedException();
+            //  Do something to log it
+
+
+            //  Raise it to anything thats listening
+            if (LogOutput != null)
+                LogOutput.Invoke(this, Message);
         }
     }
 }
