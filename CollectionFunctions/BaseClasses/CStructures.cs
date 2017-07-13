@@ -10,8 +10,13 @@ namespace CLCode.BaseClasses
     {
         public class MovePairings
         {
-            public string FromValue;
-            public string ToValue;
+            public string FromValue { get; set; }
+            public string ToValue { get; set; }
+        }
+
+        public class Configuration
+        {
+            public string LastFolder { get; set; }
         }
     }
 }

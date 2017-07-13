@@ -8,16 +8,16 @@ using System.IO;
 
 namespace CLCode
 {
-    public class FileHandle : CFile
+    public class clsFileHandle : CFile
     {
         private CLogger objLogger = null;
 
-        public FileHandle(CLogger PassedLogger)
+        public clsFileHandle(CLogger PassedLogger)
         {
             objLogger = PassedLogger;
         }
 
-
+        
 
     }
 }

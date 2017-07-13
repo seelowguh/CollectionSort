@@ -36,25 +36,51 @@ namespace CLCode.BaseClasses
             var FileQ = new DirectoryInfo(sDirectory)
                 .GetFiles()
                 .Where(f => f.Name.ToUpper().Contains("DVD"))
-                .Select(f => f.Name);
+                .Select(f => f.FullName);
 
             foreach (var file in FileQ)
                 yield return file;
 
             var FolderQ = new DirectoryInfo(sDirectory)
-                .GetFiles()
-                .Where(f => f.Name.ToUpper().Contains("DVD"))
-                .Select(f => f.Name);
+                .GetDirectories()
+                .Where(f => f.Name.ToUpper().Contains("DVD") && f.Name.ToUpper() != "DVD")
+                .Select(f => f.FullName);
 
             foreach (var folder in FolderQ)
                 yield return folder;
 
         }
 
+        public IEnumerable<string> GetDisplayFileAndFolderNames(string sDirectory)
+        {
+            List<string> _yeilds = new List<string>();
+
+            _yeilds.AddRange(GetFileNames(sDirectory));
+            _yeilds.AddRange(GetFolderNames(sDirectory));
+
+            foreach (var s in _yeilds
+                .Select(x=> x.Substring(0, x.GetFirstIndex()).StandardReplace())
+                .Distinct()
+                .OrderBy(x=>x))
+            {
+                yield return s;
+            }
+        }
+
     }
 
     public static class CFileExtentions
     {
+        public static bool FileExists(this string _source)
+        {
+            return File.Exists(_source);
+        }
+
+        public static bool FolderExists(this string _source)
+        {
+            return Directory.Exists(_source);
+        }
+
         public static void MoveFile(this string _source, string _destinationFolder)
         {
             if (!Directory.Exists(_destinationFolder))
@@ -91,6 +117,34 @@ namespace CLCode.BaseClasses
                 File.Delete(_source);
         }
 
+        public static string StandardReplace(this string _Source)
+        {
+            return _Source.Replace(".", "").Replace(" ", "").Replace("[", "").Replace("]", "");
+        }
+
+        public static int GetFirstIndex(this string _source)
+        {
+            int _return = _source.Length;
+            int _temp = _source.Length;
+
+            _temp = _source.IndexOf('_');
+            if(_temp <= 0)
+                _temp = _source.IndexOf('-');
+
+            if(_temp <= 0)
+                _temp = _source.IndexOf(']');
+
+            if (_temp <= 0)
+                _temp = _source.IndexOf('.');
+
+            if (_temp <= 0)
+                _temp = _source.Length;
+
+            _return = _temp;
+            
+            return _return;
+        }
 
     }
+
 }

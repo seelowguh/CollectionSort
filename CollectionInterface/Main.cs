@@ -1,29 +1,57 @@
-﻿using System;
+﻿using CLCode.BaseClasses;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CLCode;
 
 namespace CLCode
 {
     public partial class Main : Form
     {
+        clsRegistry cReg = null;
+        clsFileHandle cFile = null;
         public Main()
         {
             InitializeComponent();
+            cReg = new clsRegistry();
+            cFile = new clsFileHandle(cReg);
         }
 
         
-
         private void Main_Load(object sender, EventArgs e)
         {
-            BaseClasses.CRegistry cReg = new BaseClasses.CRegistry();
-            
+            //  Get the defaults from the reg
+            string _slstFolder = cReg.GetConfig().LastFolder;
+            if (_slstFolder == string.Empty || _slstFolder == null)
+                GetFolder();
+            else
+                txtFolder.Text = _slstFolder;
+
+            if (txtFolder.Text != string.Empty)
+            {
+                if (txtFolder.Text.FolderExists())
+                {
+                    foreach (var f in cFile.GetDVDFilesAndFolders(txtFolder.Text))
+                    {
+                        if (f.FileExists())
+                            f.MoveFile(string.Format("{0}\\DVD", txtFolder.Text));
+                        else if (f.FolderExists())
+                            f.MoveFolder(string.Format("{0}\\DVD", txtFolder.Text));
+
+                    }
+
+                    foreach (var _f in cFile.GetDisplayFileAndFolderNames(txtFolder.Text))
+                        clbSelected.Items.Add(_f);
+
+                }
+            }
+
         }
 
         private void txtFolder_MouseDoubleClick(object sender, MouseEventArgs e)

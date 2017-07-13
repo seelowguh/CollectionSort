@@ -42,9 +42,10 @@
   <ItemGroup>
     <Compile Include="BaseClasses\CFile.cs" />
     <Compile Include="BaseClasses\CLogger.cs" />
+    <Compile Include="clsRegistry.cs" />
     <Compile Include="BaseClasses\CRegistry.cs" />
     <Compile Include="BaseClasses\CStructures.cs" />
-    <Compile Include="FileHandle.cs" />
+    <Compile Include="clsFileHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
