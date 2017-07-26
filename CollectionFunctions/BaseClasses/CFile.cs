@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,8 @@ namespace CLCode.BaseClasses
         {
             var FQ = new DirectoryInfo(sDirectory)
                 .GetFiles()
-                .Where(f => f.Name.Contains(".") || f.Name.Contains("-") || f.Name.Contains("_"))
+                .Where(f => f.Name.Substring(0, f.Name.Length - (f.Extension.Length + 1)).Contains(".") 
+                    | f.Name.Contains("-") | f.Name.Contains("_"))
                 .Select(f => f.Name);
 
             foreach (var file in FQ)
@@ -67,10 +69,60 @@ namespace CLCode.BaseClasses
             }
         }
 
+        public void MoveFileOrFolder(string sDirectory, string sTitle)
+        {
+            if (sDirectory.Substring(sDirectory.Length - 2, 1) != "\\")
+                sDirectory += "\\";
+
+            string _NewDir = $"{sDirectory}{sTitle}\\";
+
+            var FileQ = new DirectoryInfo(sDirectory).GetFiles()
+                .Where(x => x.Name.Substring(0, x.Name.GetFirstIndex())
+                                .StandardReplace().ToLower() == sTitle.ToLower())
+                .Select(x => x);
+
+            //  Create directory if not there
+            if (FileQ.Count() > 0)
+                if (!Directory.Exists(_NewDir))
+                    Directory.CreateDirectory(_NewDir);
+
+            foreach (var x in FileQ)
+            {
+                string _newFilePath = $"{_NewDir}{x.Name}";
+                if(!File.Exists(_newFilePath))
+                    x.MoveTo(_newFilePath);
+            }
+
+            var FolderQ = new DirectoryInfo(sDirectory).GetDirectories()
+                .Where(x => x.Name.ToLower() != sTitle.ToLower() &&
+                                x.Name.Substring(0, x.Name.GetFirstIndex())
+                                .StandardReplace().ToLower() == sTitle.ToLower()
+                                )
+                .Select(x => x);
+
+            //  Create directory if not there
+            if (FolderQ.Count() > 0)
+                if (!Directory.Exists(_NewDir))
+                    Directory.CreateDirectory(_NewDir);
+
+            foreach (var x in FolderQ)
+            {
+                string _newFolderPath = $"{_NewDir}{x.Name}";
+                if(!Directory.Exists(_newFolderPath))
+                    x.MoveTo(_newFolderPath);
+            }
+
+        }
+
     }
 
     public static class CFileExtentions
     {
+        public enum _Case
+        {
+            TitleCase = 1, CamelCase = 2
+        }
+
         public static bool FileExists(this string _source)
         {
             return File.Exists(_source);
@@ -124,18 +176,23 @@ namespace CLCode.BaseClasses
 
         public static int GetFirstIndex(this string _source)
         {
+            string x = string.Empty;
+            if (_source.ToLower().Contains("blacksonblondes"))
+                x = _source;
+
             int _return = _source.Length;
             int _temp = _source.Length;
 
             _temp = _source.IndexOf('_');
-            if(_temp <= 0)
-                _temp = _source.IndexOf('-');
 
-            if(_temp <= 0)
-                _temp = _source.IndexOf(']');
+            if(_temp <= 0 || _temp > _source.IndexOf('-'))
+                _temp = _source.IndexOf('-') < 0 ? _temp : _source.IndexOf('-');
 
-            if (_temp <= 0)
-                _temp = _source.IndexOf('.');
+            if(_temp <= 0 || _temp > _source.IndexOf(']'))
+                _temp = _source.IndexOf(']') < 0 ? _temp : _source.IndexOf(']');
+
+            if (_temp <= 0 || _temp > _source.IndexOf('.'))
+                _temp = _source.IndexOf('.') < 0 ? _temp : _source.IndexOf('.');
 
             if (_temp <= 0)
                 _temp = _source.Length;
@@ -145,6 +202,25 @@ namespace CLCode.BaseClasses
             return _return;
         }
 
+        private static string FormatToCase(this string s, _Case c, bool _replaceSpaces)
+        {
+            string _return = string.Empty;
+            TextInfo tI = new CultureInfo("en-us", false).TextInfo;
+            switch (c)
+            {
+                case _Case.CamelCase:
+                    _return = s.Substring(0, 1).ToLower() + tI.ToTitleCase(s.Substring(1));
+                    break;
+                case _Case.TitleCase:
+                    _return = tI.ToTitleCase(s);
+                    break;
+            }
+
+            if (_replaceSpaces)
+                _return = _return.Replace(" ", "");
+
+            return _return;
+        }
     }
 
 }

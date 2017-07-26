@@ -46,22 +46,33 @@ namespace CLCode
 
                     }
 
-                    foreach (var _f in cFile.GetDisplayFileAndFolderNames(txtFolder.Text))
-                        clbSelected.Items.Add(_f);
+                    PopulateCode(clbSelected);
 
                 }
             }
 
         }
 
+        private void PopulateCode(CheckedListBox clb)
+        {
+            clb.Items.Clear();
+            foreach (var _f in cFile.GetDisplayFileAndFolderNames(txtFolder.Text))
+                clb.Items.Add(_f);
+        }
+
         private void txtFolder_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-
+            GetFolder();
         }
 
         private void btnProcess_Click(object sender, EventArgs e)
         {
-            txtFolder.Text = GetFolder();
+            foreach(string s in clbSelected.CheckedItems)
+            {
+                cFile.MoveFileOrFolder(txtFolder.Text, s);
+            }
+            PopulateCode(clbSelected);
+
         }
 
         private string GetFolder()
